@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SRM VEC · GPA Calculator</title>
+  <!--
+    ============================================================
+    © 2025 Sridhar. All Rights Reserved.
+    SRM Valliammai Engineering College — GPA/CGPA Calculator
+
+    This software and its source code are the intellectual
+    property of the author. Unauthorized copying, modification,
+    distribution, or use of this file, in whole or in part,
+    is strictly prohibited without the express written
+    permission of the author.
+
+    Created by: Sridhar
+    Department:  Electronics & Communication Engineering
+    College:     SRM Valliammai Engineering College, Chennai
+    Year:        2025
+    ============================================================
+  -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#0c0e14; --surface:#13161f; --surface2:#1a1e2b; --border:#252a3a;
+      --accent:#4f8ef7; --accent2:#7c3aed; --gold:#f5c542; --green:#22d3a5;
+      --red:#f87171; --text:#e8eaf2; --muted:#6b7280;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 60% 50% at 20% 0%,rgba(79,142,247,.07) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 80% 80%,rgba(124,58,237,.06) 0%,transparent 60%);pointer-events:none}
+    .wrapper{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 20px 60px}
+    .header{padding:36px 0 28px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+    .header-badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.25);padding:4px 14px;border-radius:99px;margin-bottom:8px}
+    .header h1{font-family:'Syne',sans-serif;font-size:clamp(26px,6vw,44px);font-weight:800;background:linear-gradient(120deg,#e8eaf2 30%,#4f8ef7 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1}
+    .header p{color:var(--muted);font-size:14px;margin-top:4px}
+    
+    .mode-tabs{display:flex;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:5px;width:fit-content;margin:0 auto 28px}
+    .mode-tab{cursor:pointer;padding:9px 28px;border-radius:10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:.03em;border:none;background:transparent;color:var(--muted);transition:all .2s ease}
+    .mode-tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 18px rgba(79,142,247,.3)}
+    
+    .selector-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px}
+    .sel-wrap{position:relative;flex:1;min-width:200px}
+    .sel-wrap label{display:block;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-family:'DM Mono',monospace}
+    .sel-wrap select{width:100%;padding:11px 42px 11px 16px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;appearance:none;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+    .sel-wrap select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,142,247,.15)}
+    .sel-wrap::after{content:'▾';position:absolute;right:14px;bottom:13px;color:var(--muted);pointer-events:none;font-size:12px}
+    .reset-btn{padding:11px 20px;background:transparent;border:1px solid rgba(248,113,113,.4);color:var(--red);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;white-space:nowrap}
+    .reset-btn:hover{background:rgba(248,113,113,.1);border-color:var(--red)}
+    
+    /* Stats Layout */
+    .stats-row{display:grid; gap:14px; margin-bottom:24px}
+    .wrapper.mode-gpa .stats-row { grid-template-columns: 1fr; }
+    .wrapper.mode-gpa .cgpa-card { display: none; }
+    .wrapper.mode-cgpa .stats-row { grid-template-columns: 1fr; }
+    .wrapper.mode-cgpa .gpa-card { display: none; }
+
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 26px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+    .stat-card:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(79,142,247,.07)}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .stat-card.gpa-card::before{background:linear-gradient(90deg,var(--accent),#7dd3fc)}
+    .stat-card.cgpa-card::before{background:linear-gradient(90deg,var(--green),#34d399)}
+    .stat-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+
+    /* Attractive stat-value: gradient, bold, consistent digits */
+    .stat-value{
+      font-family:'Syne',sans-serif;
+      font-size:56px;
+      font-weight:800;
+      line-height:1;
+      transition:all .3s;
+      min-height:60px;
+      display:flex;
+      align-items:center;
+      font-variant-numeric:tabular-nums lining-nums;
+      font-feature-settings:"tnum" 1,"lnum" 1;
+      letter-spacing:-0.03em;
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      width:fit-content;
+      filter:drop-shadow(0 0 18px rgba(79,142,247,.35));
+    }
+    .gpa-card .stat-value{
+      background-image:linear-gradient(120deg,#7dd3fc 0%,var(--accent) 50%,#a78bfa 100%);
+    }
+    .cgpa-card .stat-value{
+      font-size:64px;
+      min-height:68px;
+      background-image:linear-gradient(120deg,#6ee7b7 0%,var(--green) 50%,#34d399 100%);
+      filter:drop-shadow(0 0 20px rgba(34,211,165,.35));
+    }
+    .stat-sub{font-size:12px;color:var(--muted);margin-top:10px}
+
+    .main-progress-wrap{margin-top:22px}
+    .progress-label{font-size:11px;color:var(--muted);margin-bottom:8px;font-family:'DM Mono',monospace;display:flex;justify-content:space-between}
+    /* Hide text row (label + percentage) in both cards — keep only the bar */
+    .cgpa-card .progress-label { display: none; }
+    .gpa-card .progress-label { display: none; }
+    .progress-bar-bg{background:var(--border);border-radius:99px;height:6px;overflow:hidden}
+    .progress-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .4s ease}
+    
+    .cgpa-overview{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+    .sem-ov-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px; transition:all .2s; cursor:pointer;}
+    .sem-ov-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+    .sem-ov-card.editing{border-color:var(--accent);background:var(--surface2);box-shadow:0 0 15px rgba(79,142,247,.1)}
+    .sem-ov-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px; display:flex; justify-content:space-between;}
+    .sem-ov-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--accent)}
+    .sem-ov-val.empty{color:var(--border)}
+    .sem-ov-bar-bg{background:var(--border);border-radius:99px;height:4px;overflow:hidden;margin-top:12px}
+    .sem-ov-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .4s ease}
+
+    .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden}
+    .table-header-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border)}
+    .table-header-bar h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+    .table-header-bar span{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+    table{width:100%;border-collapse:collapse}
+    thead th{padding:12px 18px;text-align:left;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surface2)}
+    tbody tr{border-bottom:1px solid rgba(37,42,58,.6);transition:background .15s}
+    tbody tr:last-child{border-bottom:none}
+    tbody tr:hover{background:rgba(79,142,247,.04)}
+    tbody td{padding:13px 18px;font-size:14px;vertical-align:middle}
+    tbody td:first-child{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent)}
+    tbody td:nth-child(3){font-family:'DM Mono',monospace;font-size:13px;color:var(--muted)}
+    .grade-sel{padding:7px 12px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;appearance:none;cursor:pointer;width:90px;transition:border-color .2s}
+    .grade-sel:focus{outline:none;border-color:var(--accent)}
+    .grade-sel.go{color:#fbbf24;border-color:rgba(251,191,36,.4)}
+    .grade-sel.ga{color:var(--green);border-color:rgba(34,211,165,.3)}
+    .grade-sel.gb{color:#60a5fa;border-color:rgba(96,165,250,.3)}
+    .grade-sel.gf{color:var(--red);border-color:rgba(248,113,113,.3)}
+    .empty-msg{text-align:center;padding:40px;color:var(--muted);font-size:14px;font-family:'DM Mono',monospace}
+    
+    .bottom-actions{display:flex;justify-content:flex-end;margin-top:16px}
+    
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fadeUp .3s ease both}
+    @media(max-width:580px){.stats-row{grid-template-columns:1fr}.selector-row{flex-direction:column}.sel-wrap{min-width:unset;width:100%}.stat-value{font-size:34px !important;min-height:38px !important}.cgpa-card .stat-value{font-size:40px !important;min-height:44px !important}}
+  </style>
+</head>
+<body>
+<div class="wrapper mode-gpa">
+  <div class="header">
+    <div class="header-badge">SRM Valliammai Engineering College</div>
+    <h1>GPA · CGPA Calculator</h1>
+    <p>Track your academic performance semester by semester</p>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-gpa">📊 GPA </button>
+    <button class="mode-tab" id="tab-cgpa">🎓 CGPA </button>
+  </div>
+
+  <div class="selector-row">
+    <div class="sel-wrap">
+      <label>Department</label>
+      <select id="dept-select">
+        <option value="" disabled selected>Select Department</option>
+        <option value="ECE">Electronics &amp; Communication (ECE)</option>
+        <option value="AGRI">Agricultural Engineering</option>
+        <option value="CIVIL">Civil Engineering</option>
+        <option value="CSE">Computer Science (CSE)</option>
+        <option value="CYBER">Cyber Security</option>
+        <option value="EEE">Electrical &amp; Electronics (EEE)</option>
+        <option value="EIE">Electronics &amp; Instrumentation (EIE)</option>
+        <option value="MECH">Mechanical Engineering</option>
+        <option value="MED_ELEC">Medical Electronics (MDE)</option>
+        <option value="IT">Information Technology (IT)</option>
+        <option value="AIDS">Artificial Intelligence &amp; Data Science (AIDS)</option>
+      </select>
+    </div>
+    <div class="sel-wrap" id="sem-select-wrap">
+      <label>Semester</label>
+      <select id="semester-select">
+        <option value="" disabled selected>Select Semester</option>
+        <option value="1">Semester 1</option><option value="2">Semester 2</option>
+        <option value="3">Semester 3</option><option value="4">Semester 4</option>
+        <option value="5">Semester 5</option><option value="6">Semester 6</option>
+        <option value="7">Semester 7</option><option value="8">Semester 8</option>
+      </select>
+    </div>
+    <button class="reset-btn" id="reset-btn">✕ Reset</button>
+  </div>
+
+  <div id="main-content" style="display:none;">
+    <div class="stats-row fade-up">
+      <div class="stat-card gpa-card">
+        <div class="stat-label" id="top-gpa-label">Semester GPA</div>
+        <div class="stat-value" id="sem-gpa">—</div>
+        <div class="stat-sub" id="sem-sub">No grades entered</div>
+        
+        <div class="main-progress-wrap fade-up">
+          <div class="progress-label"><span id="prog-title-gpa">Completion</span><span id="prog-pct-gpa">0%</span></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-fill-gpa" style="width:0%"></div></div>
+        </div>
+      </div>
+      
+      <div class="stat-card cgpa-card">
+        <div class="stat-label">CGPA</div>
+        <div class="stat-value" id="overall-cgpa">—</div>
+        <div class="stat-sub" id="cgpa-sub">Calculated up to current semester</div>
+        <!-- Progress bar hidden via CSS for cgpa-card -->
+        <div class="main-progress-wrap">
+          <div class="progress-label"><span id="prog-title-cgpa">Completion</span><span id="prog-pct-cgpa">0%</span></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-fill-cgpa" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="cgpa-overview-section" style="display:none" class="fade-up">
+      <div class="cgpa-overview" id="sem-ov-cards"></div>
+    </div>
+
+    <div class="table-wrap fade-up">
+      <div class="table-header-bar">
+        <h3 id="tbl-title">Courses</h3>
+        <span id="tbl-sub"></span>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Code</th><th>Subject Name</th><th>Credits</th><th>Grade</th></tr>
+        </thead>
+        <tbody id="course-list"></tbody>
+      </table>
+    </div>
+    
+    <div class="bottom-actions fade-up">
+      <button class="reset-btn" id="clear-sem-btn">✕ Clear Semester Data</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var curriculum = {};
+
+curriculum.ECE = {
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},
+     {code:"MA3122",name:"Matrices and Calculus",cred:4},
+     {code:"PH3123",name:"Engineering Physics",cred:3},
+     {code:"CH3124",name:"Engineering Chemistry",cred:3},
+     {code:"GE3132",name:"Basic Electrical and Instrumentation",cred:3},
+     {code:"GE3111",name:"Heritage of Tamils",cred:1},
+     {code:"EN3119",name:"English Language Learning Lab",cred:1},
+     {code:"GE3121",name:"Physics and Chemistry Lab",cred:2},
+     {code:"GE3134",name:"Engineering Practices Lab",cred:2}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},
+     {code:"MA3222",name:"Statistics and Numerical Methods",cred:4},
+     {code:"PH3223",name:"Physics for Electronics Engineering",cred:3},
+     {code:"CH3223",name:"Chemistry for Electronic Materials",cred:3},
+     {code:"GE3231",name:"Problem Solving and Python Programming",cred:3},
+     {code:"GE3211",name:"Tamils and Technology",cred:1},
+     {code:"GE3233",name:"Engineering Graphics and Design",cred:3},
+     {code:"GE3221",name:"Engineering Science Lab",cred:2},
+     {code:"GE3232",name:"Python Programming Lab",cred:2}],
+  3:[{code:"MA3321",name:"Transforms and Partial Differential Eq",cred:3},
+     {code:"EC3362",name:"Solid State Devices and Circuits",cred:3},
+     {code:"EC3363",name:"Signals and Systems",cred:3},
+     {code:"EE3363",name:"Electric Circuit Analysis",cred:3},
+     {code:"EC3365",name:"Electromagnetic Fields",cred:3},
+     {code:"EC3366",name:"Digital System Design",cred:4},
+     {code:"EC3367",name:"Electronics Circuits Design Lab",cred:1.5},
+     {code:"EE3369",name:"Circuit Theory and Electronics Devices Lab",cred:1.5}],
+  4:[{code:"MA3424",name:"Applied Mathematics",cred:2},
+     {code:"EC3462",name:"Linear Integrated Circuits",cred:3},
+     {code:"EC3463",name:"Analog Communication",cred:3},
+     {code:"EC3464",name:"Microprocessors and Microcontrollers",cred:3},
+     {code:"EI3464",name:"Control System",cred:3},
+     {code:"EC3465",name:"Digital Signal Processing",cred:4},
+     {code:"EC3466",name:"Linear IC and PCB Design Lab",cred:1.5},
+     {code:"EC3467",name:"Microprocessors Lab",cred:1.5}],
+  5:[{code:"EC3561",name:"Digital Communication",cred:3},
+     {code:"EC3562",name:"Transmission Lines and Waveguides",cred:3},
+     {code:"EC3563",name:"VLSI and Chip Design",cred:3},
+     {code:"PECXX1",name:"Professional Elective-I",cred:3},
+     {code:"PECXX2",name:"Professional Elective-II",cred:3},
+     {code:"CE3531",name:"Environmental Studies",cred:2},
+     {code:"EC3564",name:"Embedded System and IoT Design",cred:4},
+     {code:"EC3566",name:"VLSI Laboratory",cred:1.5},
+     {code:"EC3567",name:"Analog and Digital Communication Lab",cred:1.5}],
+  6:[{code:"EC3661",name:"Wireless Communication",cred:3},
+     {code:"EC3662",name:"Computer Networks and Security",cred:3},
+     {code:"EC3663",name:"Antennas and Wave Propagation",cred:3},
+     {code:"PECXX3",name:"Professional Elective-III",cred:3},
+     {code:"PECXX4",name:"Professional Elective-IV",cred:3},
+     {code:"MAN10X",name:"Management Elective",cred:2},
+     {code:"EC3664",name:"Wireless Comm and Networking Lab",cred:1.5},
+     {code:"EC3645",name:"Mini Project",cred:2},
+     {code:"EN3649",name:"Professional Communication Lab",cred:1}],
+  7:[{code:"EC3761",name:"Microwave and Optical Communication",cred:3},
+     {code:"PECXX5",name:"Professional Elective-V",cred:3},
+     {code:"PECXX6",name:"Professional Elective-VI",cred:3},
+     {code:"BA3711",name:"Human Values and Ethics",cred:2},
+     {code:"OXXXXX",name:"Open Elective",cred:3},
+     {code:"EC3763",name:"AI and Machine Learning Techniques",cred:4},
+     {code:"EC3764",name:"Microwave and Optical Comm Lab",cred:1.5},{code:"EC3745",name:"Internship",cred:1}],
+  8:[{code:"EC3841",name:"Project work",cred:10}]
+};
+
+curriculum.AGRI = {
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3133",name:"Basic Civil and Mechanical Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"EN3119",name:"English Language Learning Laboratory",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3224",name:"Physics for Agricultural Engineering",cred:3},{code:"CH3224",name:"Chemistry for Agricultural Engineering",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
+  3:[{code:"MA3321",name:"Transforms and Partial Differential Equations",cred:3},{code:"AG3361",name:"Fluid Mechanics and Open Channel",cred:3},{code:"AG3362",name:"Hydrology and Water Resources Engineering",cred:3},{code:"AG3363",name:"Soil Science and Engineering",cred:3},{code:"AG3364",name:"Theory of Machines for Agricultural Engineering",cred:3},{code:"CE3363",name:"Surveying and Levelling",cred:3},{code:"AG3365",name:"Fluid Mechanics Laboratory",cred:1.5},{code:"AG3366",name:"Soil Science Laboratory",cred:1.5},{code:"CE3366",name:"Surveying and Levelling Laboratory",cred:2}],
+  4:[{code:"MA3426",name:"Applied Mathematics for Agricultural Engineering",cred:2},{code:"AG3461",name:"Tractors and Farm Engines",cred:3},{code:"AG3462",name:"Irrigation and Drainage Engineering",cred:3},{code:"AG3463",name:"Principles and Practices of Crop Production",cred:3},{code:"AG3431",name:"Strength of Materials",cred:3},{code:"AG3432",name:"Thermodynamics for Agricultural Engineering",cred:3},{code:"AG3464",name:"Crop Husbandry Laboratory",cred:1.5},{code:"AG3465",name:"Irrigation Field Laboratory",cred:1.5},{code:"AG3433",name:"Strength of Materials Laboratory",cred:1.5}],
+  5:[{code:"AG3561",name:"Agricultural Structures",cred:3},{code:"AG3562",name:"Farm Machinery and Equipment",cred:3},{code:"AG3563",name:"Post-Harvest Technology",cred:3},{code:"AG3564",name:"Unit Operations in Agricultural Processing",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"PAGXX1",name:"Professional Elective-I",cred:3},{code:"PAGXX2",name:"Professional Elective-II",cred:3},{code:"AG3565",name:"Design and Drawing of Farm Structures",cred:1.5},{code:"AG3566",name:"Tractors and Farm Machinery Laboratory",cred:1.5},{code:"AG3567",name:"Post-Harvest Engineering Laboratory",cred:1.5}],
+  6:[{code:"AG3661",name:"Design of Agricultural Machinery",cred:3},{code:"AG3662",name:"Bio Energy Resource Technology",cred:3},{code:"AG3663",name:"Soil and Water Conservation Engineering",cred:3},{code:"PAGXX3",name:"Professional Elective-III",cred:3},{code:"PAGXX4",name:"Professional Elective-IV",cred:3},{code:"MAN10X",name:"Management Elective",cred:2},{code:"AG3664",name:"CAD for Agricultural Machinery",cred:1.5},{code:"AG3641",name:"Mini Project",cred:2},{code:"EN3649",name:"Professional Communications Laboratory",cred:1}],
+  7:[{code:"AG3761",name:"Food and Dairy Engineering",cred:3},{code:"AG3762",name:"Remote Sensing and GIS",cred:3},{code:"PAGXX5",name:"Professional Elective-V",cred:3},{code:"PAGXX6",name:"Professional Elective-VI",cred:3},{code:"BA3711",name:"Human Values and Ethics",cred:2},{code:"OXXXXX",name:"Open Elective",cred:3},{code:"AG3763",name:"Food Process Engineering Laboratory",cred:1.5},{code:"AG3741",name:"Internship",cred:1},{code:"AG3742",name:"Study Tour",cred:1}],
+  8:[{code:"AG3841",name:"Project Work",cred:10}]
+};
+
+curriculum.CIVIL = {
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3131",name:"Basic Electrical and Electronics Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"EN3119",name:"English Language Learning Laboratory",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3221",name:"Physics for Civil Engineering",cred:3},{code:"CH3221",name:"Chemistry of Construction Materials",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
+  3:[{code:"MA3321",name:"Transforms and Partial Differential Equations",cred:3},{code:"CE3361",name:"Applied Mechanics",cred:3},{code:"CE3362",name:"Fluid Mechanics",cred:3},{code:"CE3363",name:"Surveying and Levelling",cred:3},{code:"CE3364",name:"Construction Materials",cred:3},{code:"CE3365",name:"Soil Mechanics",cred:3},{code:"CE3366",name:"Surveying and Levelling Laboratory",cred:2},{code:"CE3367",name:"Construction Materials Laboratory",cred:1.5},{code:"CE3368",name:"Computer Aided Drafting and Modelling Laboratory",cred:1.5}],
+  4:[{code:"MA3421",name:"Applied Mathematics for Civil Engineering",cred:2},{code:"CE3461",name:"Strength of Materials",cred:3},{code:"CE3462",name:"Applied Hydraulic Engineering",cred:3},{code:"CE3463",name:"Construction Techniques and Equipments",cred:3},{code:"CE3464",name:"Irrigation Engineering",cred:3},{code:"CE3465",name:"Foundation Engineering",cred:3},{code:"CE3466",name:"Strength of Materials Laboratory",cred:1.5},{code:"CE3467",name:"Fluid Mechanics and Machinery Laboratory",cred:1.5},{code:"CE3468",name:"Soil Mechanics Laboratory",cred:1.5}],
+  5:[{code:"CE3561",name:"Structural Analysis I",cred:3},{code:"CE3562",name:"Design of RCC Elements",cred:3},{code:"CE3563",name:"Highway and Railway Engineering",cred:3},{code:"CE3564",name:"Remote Sensing and GIS for Civil Engineering",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"PCEXX1",name:"Professional Elective-I",cred:3},{code:"PCEXX2",name:"Professional Elective-II",cred:3},{code:"CE3565",name:"Building Drawing and Detailing Laboratory",cred:1.5},{code:"CE3566",name:"Highway Engineering Laboratory",cred:1.5},{code:"CE3541",name:"Survey Camp",cred:1}],
+  6:[{code:"CE3661",name:"Structural Analysis II",cred:3},{code:"CE3662",name:"Design of Steel Structural Elements",cred:3},{code:"CE3663",name:"Water Supply and Waste Water Engineering",cred:3},{code:"PCEXX3",name:"Professional Elective-III",cred:3},{code:"PCEXX4",name:"Professional Elective-IV",cred:3},{code:"MAN1XX",name:"Management Elective",cred:2},{code:"CE3664",name:"Water Supply and Wastewater Analysis Laboratory",cred:2},{code:"CE3665",name:"Irrigation Design Laboratory",cred:1.5},{code:"EN3649",name:"Professional Communication Laboratory",cred:1}],
+  7:[{code:"CE3761",name:"Estimation, Costing and Valuation",cred:3},{code:"CE3762",name:"Dynamics and Earthquake Resistant Structures",cred:3},{code:"PCEXX5",name:"Professional Elective-V",cred:3},{code:"PCEXX6",name:"Professional Elective-VI",cred:3},{code:"BA3711",name:"Human Values and Ethics",cred:2},{code:"OXXXXX",name:"Open Elective",cred:3},{code:"CE3741",name:"Mini Project",cred:2},{code:"CE3763",name:"Structural Drawing and Detailing Laboratory",cred:2},{code:"CE3742",name:"Internship",cred:1}],
+  8:[{code:"CE3841",name:"Project Work",cred:10}]
+};
+
+curriculum.CSE = {
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3131",name:"Basic Electrical and Electronics Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"EN3119",name:"English Language Learning Laboratory",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3222",name:"Physics for Information Science",cred:3},{code:"CH3222",name:"Chemistry for Information Science",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
+  3:[{code:"MA3322",name:"Discrete Mathematics",cred:3},{code:"AD3363",name:"Digital Principles and Computer Organization",cred:3},{code:"IT3361",name:"Programming and Data Structures",cred:3},{code:"CS3361",name:"Object Oriented Programming",cred:3},{code:"CS3362",name:"Introduction to Data Science",cred:3},{code:"CS3363",name:"Software Engineering",cred:3},{code:"IT3363",name:"Programming and Data Structures Laboratory",cred:1.5},{code:"CS3364",name:"Object Oriented Programming Laboratory",cred:1.5},{code:"CS3365",name:"Data Science Laboratory",cred:1.5}],
+  4:[{code:"MA3422",name:"Applied Mathematics for Information Science",cred:2},{code:"CS3461",name:"Theory of Computation",cred:3},{code:"CS3462",name:"Object Oriented Analysis and Design",cred:3},{code:"CS3463",name:"Database Management Systems",cred:3},{code:"CS3464",name:"Design and Analysis of Algorithms",cred:3},{code:"IT3461",name:"Operating Systems",cred:3},{code:"CS3465",name:"OOAD Laboratory",cred:1.5},{code:"CS3466",name:"DBMS Laboratory",cred:1.5},{code:"IT3464",name:"Operating Systems Laboratory",cred:1.5}],
+  5:[{code:"CS3561",name:"Computer Networks",cred:3},{code:"CS3562",name:"Compiler Design",cred:3},{code:"CS3563",name:"Artificial Intelligence and Machine Learning",cred:3},{code:"CS3564",name:"Web Development and UI Design",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"PCSXX1",name:"Professional Elective-I",cred:3},{code:"PCSXX2",name:"Professional Elective-II",cred:3},{code:"CS3565",name:"Computer Networks Laboratory",cred:1.5},{code:"CS3566",name:"AI and Machine Learning Laboratory",cred:1.5},{code:"CS3567",name:"Web and Full Stack Development Laboratory",cred:1.5}],
+  6:[{code:"IT3662",name:"Mobile Computing",cred:3},{code:"CS3661",name:"Cloud Computing and IoT",cred:3},{code:"AD3661",name:"Big Data Analytics",cred:3},{code:"PCSXX3",name:"Professional Elective-III",cred:3},{code:"PCSXX4",name:"Professional Elective-IV",cred:3},{code:"MAN10X",name:"Management Elective",cred:2},{code:"IT3664",name:"Mobile Application Development Laboratory",cred:1.5},{code:"CS3641",name:"Mini Project",cred:2},{code:"EN3649",name:"Professional Communication Laboratory",cred:1}],
+  7:[{code:"CY3765",name:"Cryptography and Cyber Security",cred:3},{code:"CS3761",name:"Introduction to BlockChain Technologies",cred:3},{code:"PCSXX5",name:"Professional Elective-V",cred:3},{code:"PCSXX6",name:"Professional Elective-VI",cred:3},{code:"BA3711",name:"Human Values and Ethics",cred:2},{code:"OXXXXX",name:"Open Elective",cred:3},{code:"CY3766",name:"Cryptography and Cyber Security Laboratory",cred:1.5},{code:"CS3762",name:"Block Chain Laboratory",cred:1.5},{code:"CS3741",name:"Internship",cred:1}],
+  8:[{code:"CS3841",name:"Project Work",cred:10}]
+};
+
+curriculum.CYBER = {
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3131",name:"Basic Electrical and Electronics Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"EN3119",name:"English Language Learning Laboratory",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3222",name:"Physics for Information Science",cred:3},{code:"CH3222",name:"Chemistry for Information Science",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
+  3:[{code:"MA3322",name:"Discrete Mathematics",cred:3},{code:"AD3363",name:"Digital Principles and Computer Organization",cred:3},{code:"IT3361",name:"Programming and Data Structures",cred:3},{code:"CS3361",name:"Object Oriented Programming",cred:3},{code:"CY3361",name:"Fundamentals of Computer Networks",cred:3},{code:"CY3362",name:"Introduction to Cyber Security",cred:3},{code:"IT3363",name:"Programming and Data Structures Laboratory",cred:1.5},{code:"CS3364",name:"OOP Laboratory",cred:1.5},{code:"CY3363",name:"Computer Networks and Communication Laboratory",cred:1.5}],
+  4:[{code:"MA3422",name:"Applied Mathematics for Information Science",cred:2},{code:"CS3463",name:"Database Management Systems",cred:3},{code:"IT3461",name:"Operating Systems",cred:3},{code:"CY3461",name:"Basics of Cyber Forensics",cred:3},{code:"CY3462",name:"Secure Software Engineering",cred:3},{code:"CY3463",name:"Cyber Laws and Ethics",cred:3},{code:"CS3466",name:"DBMS Laboratory",cred:1.5},{code:"IT3464",name:"Operating Systems Laboratory",cred:1.5},{code:"CY3464",name:"Open Source Software Laboratory",cred:1.5}],
+  5:[{code:"CS3564",name:"Web Development and UI Design",cred:3},{code:"CY3561",name:"Biometric Security",cred:3},{code:"CY3562",name:"Ethical Hacking Practices",cred:3},{code:"CY3563",name:"Information Warfare",cred:3},{code:"PCYXX1",name:"Professional Elective-I",cred:3},{code:"PCYXX2",name:"Professional Elective-II",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"CS3567",name:"Web and Full Stack Development Laboratory",cred:1.5},{code:"CY3565",name:"Biometric Image Processing Laboratory",cred:1.5},{code:"CY3566",name:"Ethical Hacking Practices Laboratory",cred:1.5}],
+  6:[{code:"CY3661",name:"Intrusion Detection and Prevention Systems",cred:3},{code:"CY3662",name:"Cryptography and Network Security",cred:3},{code:"CY3663",name:"Digital Forensics",cred:3},{code:"MAN10X",name:"Management Elective",cred:2},{code:"PCYXX3",name:"Professional Elective-III",cred:3},{code:"PCYXX4",name:"Professional Elective-IV",cred:3},{code:"CY3664",name:"Cryptography and Network Security Laboratory",cred:1.5},{code:"CY3641",name:"Mini Project",cred:2},{code:"EN3649",name:"Professional Communication Laboratory",cred:1}],
+  7:[{code:"BA3711",name:"Human Values and Ethics",cred:2},{code:"CY3761",name:"Security in Mobile Exploitation",cred:3},{code:"CY3762",name:"AI in Cyber Security",cred:3},{code:"PCYXX5",name:"Professional Elective-V",cred:3},{code:"PCYXX6",name:"Professional Elective-VI",cred:3},{code:"OXXXXX",name:"Open Elective",cred:3},{code:"CY3763",name:"Security in Mobile Exploitation Laboratory",cred:1.5},{code:"CY3764",name:"AI in Cyber Security Laboratory",cred:1.5},{code:"CY3741",name:"Internship",cred:1}],
+  8:[{code:"CY3841",name:"Project Work",cred:10}]
+};
+
+curriculum.EEE = {
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3133",name:"Basic Civil and Mechanical Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"EN3119",name:"English Language Learning Laboratory",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3223",name:"Physics for Electronics Engineering",cred:3},{code:"CH3223",name:"Chemistry of Electronic Materials",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
+  3:[{code:"MA3321",name:"Transforms and Partial Differential Equations",cred:3},{code:"EC3365",name:"Electromagnetic Fields",cred:3},{code:"EE3361",name:"Digital Logic Circuits",cred:3},{code:"EE3362",name:"Electrical Machines - I",cred:3},{code:"EE3363",name:"Electric Circuit Analysis",cred:3},{code:"EI3361",name:"Electron Devices and Circuits",cred:3},{code:"EE3364",name:"Electrical Machines Laboratory - I",cred:1.5},{code:"EE3365",name:"Electric Circuits Laboratory",cred:1.5},{code:"EI3365",name:"Electron Devices and Circuits Laboratory",cred:1.5}],
+  4:[{code:"MA3423",name:"Applied Mathematics for EEE",cred:2},{code:"EC3462",name:"Linear Integrated Circuits",cred:3},{code:"EI3464",name:"Control Systems",cred:3},{code:"EE3461",name:"Electrical Machines - II",cred:3},{code:"EE3462",name:"Transmission and Distribution",cred:3},{code:"EE3463",name:"Measurements and Instrumentation",cred:3},{code:"EE3464",name:"Electrical Machines Laboratory - II",cred:1.5},{code:"EE3465",name:"Measurements and Instrumentation Laboratory",cred:1.5},{code:"EI3469",name:"Control Systems Laboratory",cred:1.5}],
+  5:[{code:"EE3561",name:"Power System Analysis",cred:3},{code:"EE3562",name:"Power Electronics",cred:3},{code:"EE3563",name:"Protection and Switchgear",cred:3},{code:"IT3563",name:"C Programming and Data Structures",cred:3},{code:"PEE10X",name:"Professional Elective-I",cred:3},{code:"PEE20X",name:"Professional Elective-II",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"EE3564",name:"Power Electronics Laboratory",cred:1.5},{code:"EE3565",name:"Linear and Digital IC Laboratory",cred:1.5},{code:"IT3564",name:"C Programming and Data Structures Laboratory",cred:1.5}],
+  6:[{code:"EE3661",name:"Power System Operation and Control",cred:3},{code:"EE3662",name:"Solid State Drives",cred:3},{code:"EE3663",name:"Microprocessors and Microcontrollers",cred:3},{code:"PEE30X",name:"Professional Elective-III",cred:3},{code:"PEE40X",name:"Professional Elective-IV",cred:3},{code:"MAN10X",name:"Management Elective",cred:2},{code:"EE3664",name:"Microprocessors and Microcontrollers Laboratory",cred:1.5},{code:"EE3641",name:"Mini Project",cred:2},{code:"EN3649",name:"Professional Communication Laboratory",cred:1}],
+  7:[{code:"EE3761",name:"High Voltage Engineering",cred:3},{code:"EE3762",name:"Renewable Energy Systems",cred:3},{code:"PEI50X",name:"Professional Elective-V",cred:3},{code:"PEE60X",name:"Professional Elective-VI",cred:3},{code:"BA3711",name:"Human Values and Ethics",cred:2},{code:"OXXXXX",name:"Open Elective",cred:3},{code:"EE3763",name:"Power System Simulation Laboratory",cred:1.5},{code:"EE3764",name:"Renewable Energy Systems Laboratory",cred:1.5},{code:"EE3741",name:"Internship",cred:1}],
+  8:[{code:"EE3841",name:"Project Work",cred:10}]
+};
+
+curriculum.EIE = {
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3133",name:"Basic Civil and Mechanical Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2},{code:"EN3119",name:"English Language Learning Laboratory",cred:1}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3223",name:"Physics for Electronics Engineering",cred:3},{code:"CH3223",name:"Chemistry of Electronic Materials",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
+  3:[{code:"MA3321",name:"Transforms and Partial Differential Equations",cred:3},{code:"EE3363",name:"Electric Circuit Analysis",cred:3},{code:"EI3361",name:"Electron Devices and Circuits",cred:3},{code:"EI3362",name:"Electrical and Electronic Instruments",cred:3},{code:"EI3363",name:"Transducers Engineering",cred:3},{code:"ME3366",name:"Applied Fluid Dynamics and Thermodynamics",cred:3},{code:"EI3364",name:"Measurements and Transducers Laboratory",cred:1.5},{code:"EE3365",name:"Electric Circuits Laboratory",cred:1.5},{code:"EI3365",name:"Electron Devices and Circuits Laboratory",cred:1.5}],
+  4:[{code:"MA3423",name:"Applied Mathematics for EIE",cred:2},{code:"EI3461",name:"Electrical Machines",cred:3},{code:"EE3361",name:"Digital Logic Circuits",cred:3},{code:"EI3463",name:"Electronics for Analog Signal Processing",cred:3},{code:"EI3464",name:"Control Systems",cred:3},{code:"EI3465",name:"Microprocessors and Microcontrollers",cred:3},{code:"EI3466",name:"Electrical Machines and Control Systems Laboratory",cred:2},{code:"EI3467",name:"Linear and Digital IC Laboratory",cred:1.5},{code:"EI3468",name:"Microprocessors and Microcontrollers Laboratory",cred:1.5}],
+  5:[{code:"EI3561",name:"Industrial Instrumentation",cred:3},{code:"EC3568",name:"Discrete Time Systems and Signal Processing",cred:3},{code:"EI3562",name:"Process Control",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"PEIXX1",name:"Professional Elective-I",cred:3},{code:"PEIXX2",name:"Professional Elective-II",cred:3},{code:"EI3563",name:"Industrial Automation Systems",cred:4},{code:"EI3564",name:"Industrial Instrumentation Laboratory",cred:1.5},{code:"EI3565",name:"Process Control Laboratory",cred:1.5}],
+  6:[{code:"EC3666",name:"IoT Concepts and Applications",cred:3},{code:"CS3665",name:"Data Structures",cred:3},{code:"PEIXX3",name:"Professional Elective-III",cred:3},{code:"PEIXX4",name:"Professional Elective-IV",cred:3},{code:"MAN1XX",name:"Management Elective",cred:2},{code:"EI3665",name:"Embedded Systems",cred:4},{code:"CS3666",name:"Data Structures Laboratory",cred:1.5},{code:"EN3649",name:"Professional Communication Laboratory",cred:1},{code:"EI3641",name:"Mini Project",cred:2}],
+  7:[{code:"EI3761",name:"Applied Machine Learning",cred:3},{code:"EI3762",name:"Industrial Data Networks",cred:3},{code:"PEIXX5",name:"Professional Elective-V",cred:3},{code:"PEIXX6",name:"Professional Elective-VI",cred:3},{code:"BA3711",name:"Human Values and Ethics",cred:2},{code:"OXXXXX",name:"Open Elective",cred:3},{code:"EI3763",name:"Instrumentation System Design Laboratory",cred:1.5},{code:"EI3741",name:"Internship",cred:1},{code:"EI3764",name:"System Identification and Simulation Laboratory",cred:1.5}],
+  8:[{code:"EI3841",name:"Project Work",cred:10}]
+};
+
+curriculum.MECH = {
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3131",name:"Basic Electrical and Electronics Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"EN3119",name:"English Language Learning Laboratory",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3225",name:"Materials Science",cred:3},{code:"CH3225",name:"Chemistry of Functional Materials",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
+  3:[{code:"MA3321",name:"Transforms and Partial Differential Equations",cred:3},{code:"ME3332",name:"Engineering Mechanics",cred:3},{code:"ME3363",name:"Engineering Thermodynamics",cred:3},{code:"ME3364",name:"Engineering Metallurgy and Material Testing",cred:3},{code:"ME3365",name:"Manufacturing Processes",cred:3},{code:"ME3336",name:"Fluid Mechanics and Machinery",cred:3},{code:"ME3367",name:"Manufacturing Technology Laboratory-I",cred:2},{code:"ME3338",name:"Fluid Mechanics and Machinery Laboratory",cred:1.5},{code:"ME3339",name:"Computer Aided Drafting Laboratory",cred:1.5}],
+  4:[{code:"MA3425",name:"Applied Mathematics for Mechanical Engineering",cred:2},{code:"ME3462",name:"Manufacturing Technology",cred:3},{code:"ME3463",name:"Strength of Materials",cred:3},{code:"ME3464",name:"Theory of Machines",cred:3},{code:"ME3465",name:"Unconventional Machining Processes",cred:3},{code:"ME3466",name:"Thermal Engineering",cred:3},{code:"ME3467",name:"Manufacturing Technology Laboratory-II",cred:2},{code:"ME3468",name:"Strength of Materials Laboratory",cred:1.5},{code:"ME3469",name:"Thermal Engineering Laboratory",cred:1.5}],
+  5:[{code:"ME3561",name:"Metrology and Measurements",cred:3},{code:"ME3562",name:"Mobility Engineering",cred:3},{code:"ME3563",name:"Heat and Mass Transfer",cred:3},{code:"ME3564",name:"Design of Machine Elements",cred:3},{code:"PMEXX1",name:"Professional Elective-I",cred:3},{code:"PMEXX2",name:"Professional Elective-II",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"ME3566",name:"Metrology and Measurements Laboratory",cred:1.5},{code:"ME3567",name:"Heat Transfer Laboratory",cred:1.5},{code:"ME3568",name:"Dynamics Laboratory",cred:1.5}],
+  6:[{code:"ME3661",name:"Computer Integrated Manufacturing",cred:3},{code:"ME3662",name:"Design of Transmission System",cred:3},{code:"ME3663",name:"Power Plant Engineering",cred:3},{code:"PMEXX3",name:"Professional Elective-III",cred:3},{code:"PMEXX4",name:"Professional Elective-IV",cred:3},{code:"MAN10X",name:"Management Elective",cred:2},{code:"ME3664",name:"Design and Fabrication Project",cred:2},{code:"ME3665",name:"CAD and CAM Laboratory",cred:1.5},{code:"EN3649",name:"Professional Communication Laboratory",cred:1}],
+  7:[{code:"ME3761",name:"Process Planning and Cost Estimation",cred:3},{code:"ME3762",name:"Mechatronics and Automation",cred:3},{code:"PMEXX5",name:"Professional Elective-V",cred:3},{code:"PMEXX6",name:"Professional Elective-VI",cred:3},{code:"BA3711",name:"Human Values and Ethics",cred:2},{code:"OXXXXX",name:"Open Elective",cred:3},{code:"ME3764",name:"Mechatronics and Automation Laboratory",cred:1.5},{code:"ME3745",name:"Simulation and Analysis Laboratory",cred:1.5},{code:"ME3746",name:"Internship",cred:1}],
+  8:[{code:"ME3841",name:"Project Work",cred:10}]
+};
+
+curriculum.MED_ELEC = {
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3131",name:"Basic Electrical and Electronics Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"EN3119",name:"English Language Learning Laboratory",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3226",name:"Medical Physics",cred:3},{code:"CH3226",name:"Chemistry for Bio-Medical Engineering",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
+  3:[{code:"MA3321",name:"Transforms and Partial Differential Equations",cred:3},{code:"EC3363",name:"Signals and Systems",cred:3},{code:"EE3363",name:"Electric Circuit Analysis",cred:3},{code:"EI3361",name:"Electron Devices and Circuits",cred:3},{code:"CS3361",name:"Object Oriented Programming",cred:3},{code:"MD3361",name:"Sensors and Measurements",cred:4},{code:"EI3365",name:"Electron Devices and Circuits Laboratory",cred:1.5},{code:"CS3364",name:"OOP Laboratory",cred:1.5}],
+  4:[{code:"MA3427",name:"Applied Mathematics for Bio-Medical Engineering",cred:2},{code:"MD3461",name:"Human Anatomy and Physiology",cred:3},{code:"MD3462",name:"Bio Control Systems",cred:3},{code:"MD3463",name:"Analog and Digital Integrated Circuits",cred:3},{code:"EC3464",name:"Microprocessors and Interfacing",cred:3},{code:"MD3464",name:"Medical Instrumentation",cred:4},{code:"MD3465",name:"Analog and Digital IC Laboratory",cred:1.5},{code:"EC3467",name:"Microprocessors and Interfacing Laboratory",cred:1.5}],
+  5:[{code:"MD3561",name:"Therapeutic Equipment",cred:3},{code:"MD3562",name:"Discrete Time Signal Processing",cred:3},{code:"MD3563",name:"Analog and Digital Communication",cred:3},{code:"PMDXX1",name:"Professional Elective-I",cred:3},{code:"PMDXX2",name:"Professional Elective-II",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"EC3564",name:"Embedded Systems and IoT Design",cred:4},{code:"MD3564",name:"Medical Equipment Laboratory",cred:1.5},{code:"MD3565",name:"Discrete Time Signal Processing Laboratory",cred:1.5}],
+  6:[{code:"MD3661",name:"Medical Imaging Techniques",cred:3},{code:"MD3662",name:"Hospital Administration and Management",cred:3},{code:"MD3663",name:"Medical Image Processing",cred:3},{code:"PMDXX3",name:"Professional Elective-III",cred:3},{code:"PMDXX4",name:"Professional Elective-IV",cred:3},{code:"MANXXX",name:"Management Elective",cred:2},{code:"MD3664",name:"Medical Image Processing Laboratory",cred:1.5},{code:"MD3645",name:"Mini Project Work",cred:2},{code:"EN3649",name:"Professional Communication Laboratory",cred:1}],
+  7:[{code:"MD3761",name:"Fundamentals of Health Care Analytics",cred:3},{code:"PMDXX5",name:"Professional Elective-V",cred:3},{code:"PMDXX6",name:"Professional Elective-VI",cred:3},{code:"BA3711",name:"Human Values and Ethics",cred:2},{code:"OXXXXX",name:"Open Elective",cred:3},{code:"EC3763",name:"AI and Machine Learning Techniques",cred:4},{code:"MD3762",name:"Medical Electronics System Design Laboratory",cred:1.5},{code:"MD3743",name:"Hospital Equipment Training",cred:1}],
+  8:[{code:"MD3841",name:"Project Work",cred:10}]
+};
+
+curriculum.IT = {
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3131",name:"Basic Electrical and Electronics Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2},{code:"EN3119",name:"English Language Learning Laboratory",cred:1}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3222",name:"Physics for Information Science",cred:3},{code:"CH3222",name:"Chemistry for Information Science",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3232",name:"Python Programming Laboratory",cred:2},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2}],
+  3:[{code:"MA3322",name:"Discrete Mathematics",cred:3},{code:"IT3361",name:"Programming and Data Structures",cred:3},{code:"IT3362",name:"Information Technology Essentials",cred:3},{code:"CS3361",name:"Object Oriented Programming",cred:3},{code:"AD3363",name:"Digital Principles and Computer Organization",cred:3},{code:"CS3362",name:"Introduction to Data Science",cred:3},{code:"IT3363",name:"Programming and Data Structures Laboratory",cred:1.5},{code:"CS3364",name:"OOP Laboratory",cred:1.5},{code:"CS3365",name:"Data Science Laboratory",cred:1.5}],
+  4:[{code:"MA3422",name:"Applied Mathematics for Information Science",cred:2},{code:"IT3461",name:"Operating Systems",cred:3},{code:"CS3463",name:"Database Management Systems",cred:3},{code:"IT3462",name:"Artificial Intelligence",cred:3},{code:"IT3463",name:"Web Essentials",cred:3},{code:"AD3463",name:"Data Communication and Networks",cred:3},{code:"IT3464",name:"Operating Systems Laboratory",cred:1.5},{code:"CS3466",name:"DBMS Laboratory",cred:1.5},{code:"AD3466",name:"Data Communication and Networks Laboratory",cred:1.5}],
+  5:[{code:"AD3562",name:"Machine Learning",cred:3},{code:"IT3561",name:"Object Oriented Software Engineering",cred:3},{code:"AD3561",name:"Embedded Systems and IoT",cred:3},{code:"AD3361",name:"Data Exploration and Visualization",cred:3},{code:"PITXX1",name:"Professional Elective-I",cred:3},{code:"PITXX2",name:"Professional Elective-II",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"IT3562",name:"OOSE Laboratory",cred:1.5},{code:"AD3565",name:"Machine Learning Laboratory",cred:1.5},{code:"AD3364",name:"Data Exploration and Visualization Laboratory",cred:1.5}],
+  6:[{code:"IT3661",name:"Full Stack Development",cred:3},{code:"AD3661",name:"Big Data Analytics",cred:3},{code:"IT3662",name:"Mobile Computing",cred:3},{code:"PITXX3",name:"Professional Elective-III",cred:3},{code:"PITXX4",name:"Professional Elective-IV",cred:3},{code:"MANXXX",name:"Management Elective",cred:2},{code:"IT3663",name:"Full Stack Development Laboratory",cred:1.5},{code:"IT3641",name:"Mini Project",cred:2},{code:"EN3649",name:"Professional Communication Laboratory",cred:1}],
+  7:[{code:"CY3765",name:"Cryptography and Cyber Security",cred:3},{code:"IT3761",name:"Cloud Computing",cred:3},{code:"PITXX5",name:"Professional Elective-V",cred:3},{code:"PITXX6",name:"Professional Elective-VI",cred:3},{code:"BA3711",name:"Human values and Ethics",cred:2},{code:"OXXXXX",name:"Open Elective",cred:3},{code:"CY3766",name:"Cryptography and Cyber Security Laboratory",cred:1.5},{code:"IT3762",name:"Cloud Deployment Model Laboratory",cred:1.5},{code:"IT3741",name:"Internship",cred:1}],
+  8:[{code:"IT3841",name:"Project Work",cred:10}]
+};
+
+curriculum.AIDS = {
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3131",name:"Basic Electrical and Electronics Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"EN3119",name:"English Language Learning Laboratory",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3222",name:"Physics for Information Science",cred:3},{code:"CH3222",name:"Chemistry for Information Science",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
+  3:[{code:"MA3322",name:"Discrete Mathematics",cred:3},{code:"AD3361",name:"Data Exploration and Visualization",cred:3},{code:"AD3362",name:"Database Design and Management",cred:3},{code:"AD3363",name:"Digital Principles and Computer Organization",cred:3},{code:"IT3361",name:"Programming and Data Structures",cred:3},{code:"CS3363",name:"Software Engineering",cred:3},{code:"AD3364",name:"Data Exploration and Visualization Laboratory",cred:1.5},{code:"AD3365",name:"Database Design and Management Laboratory",cred:1.5},{code:"IT3363",name:"Programming and Data Structures Laboratory",cred:1.5}],
+  4:[{code:"MA3428",name:"Applied Mathematics for Data Science",cred:2},{code:"AD3461",name:"Artificial Intelligence - I",cred:3},{code:"AD3462",name:"Data and Information Security",cred:3},{code:"AD3463",name:"Data Communication and Networks",cred:3},{code:"AD3464",name:"Fundamentals of Data Science and Analytics",cred:3},{code:"IT3461",name:"Operating Systems",cred:3},{code:"AD3465",name:"AI - I Laboratory",cred:1.5},{code:"AD3466",name:"Data Communication and Networks Laboratory",cred:1.5},{code:"AD3467",name:"Data Science and Analytics Laboratory",cred:1.5}],
+  5:[{code:"AD3561",name:"Embedded Systems and IoT",cred:3},{code:"AD3562",name:"Machine Learning",cred:3},{code:"AD3563",name:"Text and Speech Analysis",cred:3},{code:"IT3761",name:"Cloud Computing",cred:3},{code:"PADXX1",name:"Professional Elective-I",cred:3},{code:"PADXX2",name:"Professional Elective-II",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"AD3564",name:"Embedded Systems and IoT Laboratory",cred:1.5},{code:"AD3565",name:"Machine Learning Laboratory",cred:1.5},{code:"AD3566",name:"Text and Speech Analysis Laboratory",cred:1.5}],
+  6:[{code:"AD3661",name:"Big Data Analytics",cred:3},{code:"AD3662",name:"Distributed Computing",cred:3},{code:"IT3662",name:"Mobile Computing",cred:3},{code:"PADXX3",name:"Professional Elective-III",cred:3},{code:"PADXX4",name:"Professional Elective-IV",cred:3},{code:"MAN10X",name:"Management Elective",cred:2},{code:"AD3663",name:"Big Data Analytics Laboratory",cred:1.5},{code:"EN3649",name:"Professional Communication Laboratory",cred:1},{code:"AD3641",name:"Mini Project",cred:2}],
+  7:[{code:"AD3761",name:"Artificial Intelligence - II",cred:3},{code:"AD3762",name:"Deep Learning",cred:3},{code:"PADXX5",name:"Professional Elective-V",cred:3},{code:"PADXX6",name:"Professional Elective-VI",cred:3},{code:"BA3711",name:"Human Values and Ethics",cred:2},{code:"OXXXXX",name:"Open Elective - I",cred:3},{code:"AD3763",name:"AI - II Laboratory",cred:1.5},{code:"AD3764",name:"Deep Learning Laboratory",cred:1.5},{code:"AD3741",name:"Internship",cred:1}],
+  8:[{code:"AD3841",name:"Project Work",cred:10}]
+};
+
+var GP = {"O":10,"A+":9,"A":8,"B+":7,"B":6,"C":5,"U":0};
+
+var mode = 'gpa';
+
+var viewState = {
+  gpa: { dept: '', sem: '' },
+  cgpa: { dept: '', sem: '', editingSem: null }
+};
+
+var grades = {};
+Object.keys(curriculum).forEach(function(d){
+  grades[d] = {};
+  for(var s=1;s<=8;s++) grades[d][s] = {};
+});
+
+var deptEl = document.getElementById('dept-select');
+var semEl  = document.getElementById('semester-select');
+var tbody  = document.getElementById('course-list');
+var mainContent = document.getElementById('main-content');
+
+function dept(){ return deptEl.value; }
+function sem(){  return parseInt(semEl.value); }
+
+function syncDropdowns() {
+  deptEl.value = viewState[mode].dept;
+  semEl.value = viewState[mode].sem;
+}
+
+function saveDropdowns() {
+  viewState[mode].dept = deptEl.value;
+  viewState[mode].sem = semEl.value;
+}
+
+function checkSelections() {
+  if (deptEl.value && semEl.value) {
+    mainContent.style.display = 'block';
+    if (mode === 'cgpa' && viewState.cgpa.editingSem === null) {
+        viewState.cgpa.editingSem = sem();
+    }
+    return true;
+  } else {
+    mainContent.style.display = 'none';
+    return false;
+  }
+}
+
+function semGpa(d, s){
+  var courses = curriculum[d][s] || [];
+  var cr=0, pts=0;
+  courses.forEach(function(c){
+    if(c.cred===0) return;
+    var g = grades[d][s][c.code];
+    if(g !== undefined && g !== '' && g !== 'U' && GP[g] !== undefined){
+      cr+=c.cred; pts+=c.cred*GP[g];
+    }
+  });
+  return cr>0 ? {val:pts/cr, cr:cr} : {val:null, cr:0};
+}
+
+function calculateCgpaTill(d, targetSem) {
+    var tc=0, tp=0;
+    for(var s=1; s<=targetSem; s++) {
+        var courses = curriculum[d][s] || [];
+        courses.forEach(function(c){
+            if(c.cred===0) return;
+            var g = grades[d][s][c.code];
+            if(g !== undefined && g !== '' && g !== 'U' && GP[g] !== undefined){
+                tc += c.cred; tp += c.cred * GP[g];
+            }
+        });
+    }
+    return tc>0 ? tp/tc : null;
+}
+
+function gradeClass(g){
+  if(!g) return '';
+  if(g==='O') return 'go';
+  if(g==='A+'||g==='A') return 'ga';
+  if(g==='B+'||g==='B') return 'gb';
+  if(g==='U') return 'gf';
+  return '';
+}
+
+function updateStats(){
+  var d = dept();
+  var targetSem = sem();
+
+  var sg = semGpa(d, targetSem);
+  var oc = calculateCgpaTill(d, targetSem);
+
+  document.getElementById('top-gpa-label').textContent = 'Semester ' + targetSem + ' GPA';
+  document.getElementById('sem-gpa').textContent = sg.val!==null ? sg.val.toFixed(3) : '—';
+  document.getElementById('sem-sub').textContent = sg.cr>0 ? sg.cr+' credits graded' : 'No grades entered';
+  
+  // CGPA: simple label, no "till semester X"
+  document.getElementById('overall-cgpa').textContent = oc!==null ? oc.toFixed(2) : '—';
+  document.getElementById('cgpa-sub').textContent = oc!==null ? 'Up to Semester ' + targetSem : 'No grades entered';
+
+  // GPA progress bar (with text labels)
+  var semArray = (curriculum[d][targetSem]||[]).filter(function(c){return c.cred>0;});
+  var totalCourses = semArray.length;
+  var totalGraded = semArray.filter(function(c){return grades[d][targetSem][c.code];}).length;
+  document.getElementById('prog-title-gpa').textContent = 'Semester ' + targetSem + ' Completion';
+  var pct = totalCourses > 0 ? Math.round((totalGraded / totalCourses) * 100) : 0;
+  document.getElementById('prog-fill-gpa').style.width = pct+'%';
+  document.getElementById('prog-pct-gpa').textContent = pct+'%';
+
+  // CGPA progress bar (bar only, labels hidden via CSS)
+  var totalCoursesAll = 0, totalGradedAll = 0;
+  for(var i=1; i<=targetSem; i++){
+    var arr = (curriculum[d][i]||[]).filter(function(c){return c.cred>0;});
+    totalCoursesAll += arr.length;
+    totalGradedAll += arr.filter(function(c){return grades[d][i][c.code];}).length;
+  }
+  var cgpaPct = totalCoursesAll > 0 ? Math.round((totalGradedAll / totalCoursesAll) * 100) : 0;
+  document.getElementById('prog-fill-cgpa').style.width = cgpaPct+'%';
+}
+
+function renderTable(d, s){
+  tbody.innerHTML = '';
+  var courses = curriculum[d] && curriculum[d][s] ? curriculum[d][s].filter(function(c){return c.cred>0;}) : [];
+  var totalCredits = courses.reduce(function(a,c){return a+c.cred;},0);
+  document.getElementById('tbl-title').textContent = 'Semester ' + s + ' Courses';
+  document.getElementById('tbl-sub').textContent = courses.length + ' subjects · ' + totalCredits + ' credits';
+
+  if(!courses.length){
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">No curriculum data.</td></tr>';
+    updateStats(); return;
+  }
+
+  courses.forEach(function(course, i){
+    var saved = (grades[d][s][course.code]) || '';
+    var tr = document.createElement('tr');
+    tr.style.animationDelay = (i*0.025)+'s';
+    tr.className = 'fade-up';
+
+    var opts = '<option value="">—</option>';
+    Object.keys(GP).forEach(function(g){
+      opts += '<option value="'+g+'"'+(saved===g?' selected':'')+'>'+g+'</option>';
+    });
+
+    tr.innerHTML = '<td>'+course.code+'</td>'
+      +'<td>'+course.name+'</td>'
+      +'<td>'+course.cred+'</td>'
+      +'<td><select class="grade-sel '+gradeClass(saved)+'" data-code="'+course.code+'">'+opts+'</select></td>';
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll('.grade-sel').forEach(function(sel){
+    sel.addEventListener('change', function(e){
+      var code = e.target.getAttribute('data-code');
+      var targetSem = (mode === 'cgpa') ? viewState.cgpa.editingSem : sem();
+      grades[dept()][targetSem][code] = e.target.value;
+      e.target.className = 'grade-sel '+gradeClass(e.target.value);
+      updateStats();
+      if(mode==='cgpa') updateOvCards();
+    });
+  });
+  updateStats();
+}
+
+function updateOvCards(){
+  var d = dept();
+  var maxS = sem();
+  var container = document.getElementById('sem-ov-cards');
+  container.innerHTML = '';
+  
+  for(var s=1; s<=maxS; s++){
+    var sg = semGpa(d, s);
+    var semCourses = (curriculum[d][s]||[]).filter(function(c){return c.cred>0;});
+    var semTotal = semCourses.length;
+    var semGraded = semCourses.filter(function(c){return grades[d][s][c.code];}).length;
+    var semPct = semTotal > 0 ? Math.round((semGraded / semTotal) * 100) : 0;
+    var card = document.createElement('div');
+    card.className = 'sem-ov-card' + (s === viewState.cgpa.editingSem ? ' editing' : '');
+    card.innerHTML = '<div class="sem-ov-label"><span>Semester '+s+'</span></div>'
+      +'<div class="sem-ov-val'+(sg.val===null?' empty':'')+'">GPA: '+( sg.val!==null ? sg.val.toFixed(3) : '—')+'</div>'
+      +'<div class="sem-ov-bar-bg"><div class="sem-ov-bar-fill" style="width:'+semPct+'%"></div></div>';
+      
+    (function(clickedSem) {
+      card.addEventListener('click', function(){
+        viewState.cgpa.editingSem = clickedSem;
+        updateOvCards();
+        renderTable(dept(), viewState.cgpa.editingSem);
+        updateStats();
+      });
+    })(s);
+
+    container.appendChild(card);
+  }
+}
+
+document.getElementById('tab-gpa').addEventListener('click', function(){
+  if(mode==='gpa') return;
+  mode='gpa';
+  var wrap = document.querySelector('.wrapper');
+  wrap.classList.remove('mode-cgpa');
+  wrap.classList.add('mode-gpa');
+  document.getElementById('tab-gpa').classList.add('active');
+  document.getElementById('tab-cgpa').classList.remove('active');
+  document.getElementById('cgpa-overview-section').style.display='none';
+  syncDropdowns();
+  if (checkSelections()) { renderTable(dept(), sem()); }
+});
+
+document.getElementById('tab-cgpa').addEventListener('click', function(){
+  if(mode==='cgpa') return;
+  mode='cgpa';
+  var wrap = document.querySelector('.wrapper');
+  wrap.classList.remove('mode-gpa');
+  wrap.classList.add('mode-cgpa');
+  document.getElementById('tab-cgpa').classList.add('active');
+  document.getElementById('tab-gpa').classList.remove('active');
+  document.getElementById('cgpa-overview-section').style.display='';
+  syncDropdowns();
+  if (checkSelections()) {
+    updateOvCards();
+    renderTable(dept(), viewState.cgpa.editingSem);
+  }
+});
+
+deptEl.addEventListener('change', function(){
+  saveDropdowns();
+  if (checkSelections()) {
+    if(mode==='cgpa') {
+        viewState.cgpa.editingSem = sem();
+        updateOvCards();
+        renderTable(dept(), viewState.cgpa.editingSem);
+    } else {
+        renderTable(dept(), sem());
+    }
+  }
+});
+
+semEl.addEventListener('change', function(){
+  saveDropdowns();
+  if (checkSelections()) {
+    if(mode==='cgpa') {
+        viewState.cgpa.editingSem = sem();
+        updateOvCards();
+        renderTable(dept(), viewState.cgpa.editingSem);
+    } else {
+        renderTable(dept(), sem());
+    }
+  }
+});
+
+document.getElementById('reset-btn').addEventListener('click', function(){
+  if(confirm('Are you sure you want to reset everything? This will clear all selections and data.')){
+    Object.keys(curriculum).forEach(function(d){
+      for(var s=1;s<=8;s++) grades[d][s] = {};
+    });
+    viewState = { gpa: { dept: '', sem: '' }, cgpa: { dept: '', sem: '', editingSem: null } };
+    deptEl.value = "";
+    semEl.value = "";
+    checkSelections();
+  }
+});
+
+document.getElementById('clear-sem-btn').addEventListener('click', function(){
+  var currentTableSem = (mode === 'cgpa') ? viewState.cgpa.editingSem : sem();
+  if(confirm('Clear all entered grades for Semester ' + currentTableSem + '?')){
+    grades[dept()][currentTableSem] = {};
+    if(mode==='cgpa') updateOvCards();
+    renderTable(dept(), currentTableSem);
+  }
+});
+</script>
+</body>
+</html>
