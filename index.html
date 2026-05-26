@@ -157,17 +157,17 @@
       <label>Department</label>
       <select id="dept-select">
         <option value="" disabled selected>Select Department</option>
-        <option value="ECE">Electronics &amp; Communication (ECE)</option>
+        <option value="ECE">Electronics and Communication Engineering (ECE)</option>
         <option value="AGRI">Agricultural Engineering</option>
         <option value="CIVIL">Civil Engineering</option>
-        <option value="CSE">Computer Science (CSE)</option>
+        <option value="CSE">Computer Science Engineering (CSE)</option>
         <option value="CYBER">Cyber Security</option>
-        <option value="EEE">Electrical &amp; Electronics (EEE)</option>
-        <option value="EIE">Electronics &amp; Instrumentation (EIE)</option>
+        <option value="EEE">Electrical and Electronics Engineering (EEE)</option>
+        <option value="EIE">Electronics and Instrumentation Engineering (EIE)</option>
         <option value="MECH">Mechanical Engineering</option>
         <option value="MED_ELEC">Medical Electronics (MDE)</option>
         <option value="IT">Information Technology (IT)</option>
-        <option value="AIDS">Artificial Intelligence &amp; Data Science (AIDS)</option>
+        <option value="AIDS">Artificial Intelligence and Data Science (AIDS)</option>
       </select>
     </div>
     <div class="sel-wrap" id="sem-select-wrap">
@@ -299,19 +299,88 @@ curriculum.ECE = {
 };
 
 curriculum.AGRI = {
-  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3133",name:"Basic Civil and Mechanical Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"EN3119",name:"English Language Learning Laboratory",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
-  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3224",name:"Physics for Agricultural Engineering",cred:3},{code:"CH3224",name:"Chemistry for Agricultural Engineering",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
-  3:[{code:"MA3321",name:"Transforms and Partial Differential Equations",cred:3},{code:"AG3361",name:"Fluid Mechanics and Open Channel",cred:3},{code:"AG3362",name:"Hydrology and Water Resources Engineering",cred:3},{code:"AG3363",name:"Soil Science and Engineering",cred:3},{code:"AG3364",name:"Theory of Machines for Agricultural Engineering",cred:3},{code:"CE3363",name:"Surveying and Levelling",cred:3},{code:"AG3365",name:"Fluid Mechanics Laboratory",cred:1.5},{code:"AG3366",name:"Soil Science Laboratory",cred:1.5},{code:"CE3366",name:"Surveying and Levelling Laboratory",cred:2}],
-  4:[{code:"MA3426",name:"Applied Mathematics for Agricultural Engineering",cred:2},{code:"AG3461",name:"Tractors and Farm Engines",cred:3},{code:"AG3462",name:"Irrigation and Drainage Engineering",cred:3},{code:"AG3463",name:"Principles and Practices of Crop Production",cred:3},{code:"AG3431",name:"Strength of Materials",cred:3},{code:"AG3432",name:"Thermodynamics for Agricultural Engineering",cred:3},{code:"AG3464",name:"Crop Husbandry Laboratory",cred:1.5},{code:"AG3465",name:"Irrigation Field Laboratory",cred:1.5},{code:"AG3433",name:"Strength of Materials Laboratory",cred:1.5}],
-  5:[{code:"AG3561",name:"Agricultural Structures",cred:3},{code:"AG3562",name:"Farm Machinery and Equipment",cred:3},{code:"AG3563",name:"Post-Harvest Technology",cred:3},{code:"AG3564",name:"Unit Operations in Agricultural Processing",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"PAGXX1",name:"Professional Elective-I",cred:3},{code:"PAGXX2",name:"Professional Elective-II",cred:3},{code:"AG3565",name:"Design and Drawing of Farm Structures",cred:1.5},{code:"AG3566",name:"Tractors and Farm Machinery Laboratory",cred:1.5},{code:"AG3567",name:"Post-Harvest Engineering Laboratory",cred:1.5}],
-  6:[{code:"AG3661",name:"Design of Agricultural Machinery",cred:3},{code:"AG3662",name:"Bio Energy Resource Technology",cred:3},{code:"AG3663",name:"Soil and Water Conservation Engineering",cred:3},{code:"PAGXX3",name:"Professional Elective-III",cred:3},{code:"PAGXX4",name:"Professional Elective-IV",cred:3},{code:"MAN10X",name:"Management Elective",cred:2},{code:"AG3664",name:"CAD for Agricultural Machinery",cred:1.5},{code:"AG3641",name:"Mini Project",cred:2},{code:"EN3649",name:"Professional Communications Laboratory",cred:1}],
-  7:[{code:"AG3761",name:"Food and Dairy Engineering",cred:3},{code:"AG3762",name:"Remote Sensing and GIS",cred:3},{code:"PAGXX5",name:"Professional Elective-V",cred:3},{code:"PAGXX6",name:"Professional Elective-VI",cred:3},{code:"BA3711",name:"Human Values and Ethics",cred:2},{code:"OXXXXX",name:"Open Elective",cred:3},{code:"AG3763",name:"Food Process Engineering Laboratory",cred:1.5},{code:"AG3741",name:"Internship",cred:1},{code:"AG3742",name:"Study Tour",cred:1}],
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},
+     {code:"MA3122",name:"Matrices and Calculus",cred:4},
+     {code:"PH3123",name:"Engineering Physics",cred:3},
+     {code:"CH3124",name:"Engineering Chemistry",cred:3},
+     {code:"GE3133",name:"Basic Civil and Mechanical Engineering",cred:3},
+     {code:"GE3111",name:"Heritage of Tamils",cred:1},
+     {code:"EN3119",name:"English Language Learning Laboratory",cred:1},
+     {code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},
+     {code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},
+     {code:"MA3222",name:"Statistics and Numerical Methods",cred:4},
+     {code:"PH3224",name:"Physics for Agricultural Engineering",cred:3},
+     {code:"CH3224",name:"Chemistry for Agricultural Engineering",cred:3},
+     {code:"GE3231",name:"Problem Solving and Python Programming",cred:3},
+     {code:"GE3211",name:"Tamils and Technology",cred:1},
+     {code:"GE3233",name:"Engineering Graphics and Design",cred:3},
+     {code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},
+     {code:"GE3232",name:"Python Programming Laboratory",cred:2}],
+  3:[{code:"MA3321",name:"Transforms and Partial Differential Equations",cred:3},
+     {code:"AG3361",name:"Fluid Mechanics and Open Channel",cred:3},
+     {code:"AG3362",name:"Hydrology and Water Resources Engineering",cred:3},
+     {code:"AG3363",name:"Soil Science and Engineering",cred:3},
+     {code:"AG3364",name:"Theory of Machines for Agricultural Engineering",cred:3},
+     {code:"CE3363",name:"Surveying and Levelling",cred:3},
+     {code:"AG3365",name:"Fluid Mechanics Laboratory",cred:1.5},
+     {code:"AG3366",name:"Soil Science Laboratory",cred:1.5},
+     {code:"CE3366",name:"Surveying and Levelling Laboratory",cred:2}],
+  4:[{code:"MA3426",name:"Applied Mathematics for Agricultural Engineering",cred:2},
+     {code:"AG3461",name:"Tractors and Farm Engines",cred:3},
+     {code:"AG3462",name:"Irrigation and Drainage Engineering",cred:3},
+     {code:"AG3463",name:"Principles and Practices of Crop Production",cred:3},
+     {code:"AG3431",name:"Strength of Materials",cred:3},
+     {code:"AG3432",name:"Thermodynamics for Agricultural Engineering",cred:3},
+     {code:"AG3464",name:"Crop Husbandry Laboratory",cred:1.5},
+     {code:"AG3465",name:"Irrigation Field Laboratory",cred:1.5},
+     {code:"AG3433",name:"Strength of Materials Laboratory",cred:1.5}],
+  5:[{code:"AG3561",name:"Agricultural Structures",cred:3},
+     {code:"AG3562",name:"Farm Machinery and Equipment",cred:3},
+     {code:"AG3563",name:"Post-Harvest Technology",cred:3},
+     {code:"AG3564",name:"Unit Operations in Agricultural Processing",cred:3},
+     {code:"CE3531",name:"Environmental Studies",cred:2},
+     {code:"PAGXX1",name:"Professional Elective-I",cred:3},
+     {code:"PAGXX2",name:"Professional Elective-II",cred:3},
+     {code:"AG3565",name:"Design and Drawing of Farm Structures",cred:1.5},
+     {code:"AG3566",name:"Tractors and Farm Machinery Laboratory",cred:1.5},
+     {code:"AG3567",name:"Post-Harvest Engineering Laboratory",cred:1.5}],
+  6:[{code:"AG3661",name:"Design of Agricultural Machinery",cred:3},
+     {code:"AG3662",name:"Bio Energy Resource Technology",cred:3},
+     {code:"AG3663",name:"Soil and Water Conservation Engineering",cred:3},
+     {code:"PAGXX3",name:"Professional Elective-III",cred:3},
+     {code:"PAGXX4",name:"Professional Elective-IV",cred:3},
+     {code:"MAN10X",name:"Management Elective",cred:2},
+     {code:"AG3664",name:"CAD for Agricultural Machinery",cred:1.5},
+     {code:"AG3641",name:"Mini Project",cred:2},
+     {code:"EN3649",name:"Professional Communications Laboratory",cred:1}],
+  7:[{code:"AG3761",name:"Food and Dairy Engineering",cred:3},
+     {code:"AG3762",name:"Remote Sensing and GIS",cred:3},
+     {code:"PAGXX5",name:"Professional Elective-V",cred:3},
+     {code:"PAGXX6",name:"Professional Elective-VI",cred:3},
+     {code:"BA3711",name:"Human Values and Ethics",cred:2},
+     {code:"OXXXXX",name:"Open Elective",cred:3},
+     {code:"AG3763",name:"Food Process Engineering Laboratory",cred:1.5},
+     {code:"AG3741",name:"Internship",cred:1},
+     {code:"AG3742",name:"Study Tour",cred:1}],
   8:[{code:"AG3841",name:"Project Work",cred:10}]
 };
 
 curriculum.CIVIL = {
-  1:[{code:"EN3111",name:"Professional English - I",cred:3},{code:"MA3122",name:"Matrices and Calculus",cred:4},{code:"PH3123",name:"Engineering Physics",cred:3},{code:"CH3124",name:"Engineering Chemistry",cred:3},{code:"GE3131",name:"Basic Electrical and Electronics Engineering",cred:3},{code:"GE3111",name:"Heritage of Tamils",cred:1},{code:"EN3119",name:"English Language Learning Laboratory",cred:1},{code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},{code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
-  2:[{code:"EN3211",name:"Professional English - II",cred:3},{code:"MA3222",name:"Statistics and Numerical Methods",cred:4},{code:"PH3221",name:"Physics for Civil Engineering",cred:3},{code:"CH3221",name:"Chemistry of Construction Materials",cred:3},{code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
+  1:[{code:"EN3111",name:"Professional English - I",cred:3},
+     {code:"MA3122",name:"Matrices and Calculus",cred:4},
+     {code:"PH3123",name:"Engineering Physics",cred:3},
+     {code:"CH3124",name:"Engineering Chemistry",cred:3},
+     {code:"GE3131",name:"Basic Electrical and Electronics Engineering",cred:3},
+     {code:"GE3111",name:"Heritage of Tamils",cred:1},
+     {code:"EN3119",name:"English Language Learning Laboratory",cred:1},
+     {code:"GE3121",name:"Physics and Chemistry Laboratory",cred:2},
+     {code:"GE3134",name:"Engineering Practices Laboratory",cred:2}],
+  2:[{code:"EN3211",name:"Professional English - II",cred:3},
+     {code:"MA3222",name:"Statistics and Numerical Methods",cred:4},
+     {code:"PH3221",name:"Physics for Civil Engineering",cred:3},
+     {code:"CH3221",name:"Chemistry of Construction Materials",cred:3},
+     {code:"GE3231",name:"Problem Solving and Python Programming",cred:3},{code:"GE3211",name:"Tamils and Technology",cred:1},{code:"GE3233",name:"Engineering Graphics and Design",cred:3},{code:"GE3221",name:"Engineering Sciences Laboratory",cred:2},{code:"GE3232",name:"Python Programming Laboratory",cred:2}],
   3:[{code:"MA3321",name:"Transforms and Partial Differential Equations",cred:3},{code:"CE3361",name:"Applied Mechanics",cred:3},{code:"CE3362",name:"Fluid Mechanics",cred:3},{code:"CE3363",name:"Surveying and Levelling",cred:3},{code:"CE3364",name:"Construction Materials",cred:3},{code:"CE3365",name:"Soil Mechanics",cred:3},{code:"CE3366",name:"Surveying and Levelling Laboratory",cred:2},{code:"CE3367",name:"Construction Materials Laboratory",cred:1.5},{code:"CE3368",name:"Computer Aided Drafting and Modelling Laboratory",cred:1.5}],
   4:[{code:"MA3421",name:"Applied Mathematics for Civil Engineering",cred:2},{code:"CE3461",name:"Strength of Materials",cred:3},{code:"CE3462",name:"Applied Hydraulic Engineering",cred:3},{code:"CE3463",name:"Construction Techniques and Equipments",cred:3},{code:"CE3464",name:"Irrigation Engineering",cred:3},{code:"CE3465",name:"Foundation Engineering",cred:3},{code:"CE3466",name:"Strength of Materials Laboratory",cred:1.5},{code:"CE3467",name:"Fluid Mechanics and Machinery Laboratory",cred:1.5},{code:"CE3468",name:"Soil Mechanics Laboratory",cred:1.5}],
   5:[{code:"CE3561",name:"Structural Analysis I",cred:3},{code:"CE3562",name:"Design of RCC Elements",cred:3},{code:"CE3563",name:"Highway and Railway Engineering",cred:3},{code:"CE3564",name:"Remote Sensing and GIS for Civil Engineering",cred:3},{code:"CE3531",name:"Environmental Studies",cred:2},{code:"PCEXX1",name:"Professional Elective-I",cred:3},{code:"PCEXX2",name:"Professional Elective-II",cred:3},{code:"CE3565",name:"Building Drawing and Detailing Laboratory",cred:1.5},{code:"CE3566",name:"Highway Engineering Laboratory",cred:1.5},{code:"CE3541",name:"Survey Camp",cred:1}],
